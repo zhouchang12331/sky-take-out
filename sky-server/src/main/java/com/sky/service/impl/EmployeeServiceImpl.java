@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -49,7 +51,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //密码比对
         //对前端传过来的明文密码进行md5加密处理
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
+//        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        password=DigestUtils.md5DigestAsHex(password.getBytes());
         if (!password.equals(employee.getPassword())) {
             //密码错误
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
@@ -68,26 +71,42 @@ public class EmployeeServiceImpl implements EmployeeService {
      * 新增员工
      * @param employeeDTO
      */
-    public void save(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee();
-
-        //对象属性拷贝
-        BeanUtils.copyProperties(employeeDTO, employee);
-
-        //设置账号的状态，默认正常状态 1表示正常 0表示锁定
-        employee.setStatus(StatusConstant.ENABLE);
-
-        //设置密码，默认密码123456
+//    public void save(EmployeeDTO employeeDTO) {
+//        Employee employee = new Employee();
+//
+//        //对象属性拷贝
+//        BeanUtils.copyProperties(employeeDTO, employee);
+//
+//        //设置账号的状态，默认正常状态 1表示正常 0表示锁定
+//        employee.setStatus(StatusConstant.ENABLE);
+//
+//        //设置密码，默认密码123456
+//        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+//
+//        //设置当前记录的创建时间和修改时间
+//        //employee.setCreateTime(LocalDateTime.now());
+//        //employee.setUpdateTime(LocalDateTime.now());
+//
+//        //设置当前记录创建人id和修改人id
+//        //employee.setCreateUser(BaseContext.getCurrentId());
+//        //employee.setUpdateUser(BaseContext.getCurrentId());
+//
+//        employeeMapper.insert(employee);
+//    }
+    @Override
+    public void addEmp(EmployeeDTO employeeDTO){
+        Employee employee=new Employee();
+        BeanUtils.copyProperties(employeeDTO,employee);
+        //1,补充缺失字段:password,staus,createTime,updateTime,updateUser,updateUser
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+        employee.setStatus(StatusConstant.ENABLE);
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+        //TODO
+        employee.setCreateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());
 
-        //设置当前记录的创建时间和修改时间
-        //employee.setCreateTime(LocalDateTime.now());
-        //employee.setUpdateTime(LocalDateTime.now());
-
-        //设置当前记录创建人id和修改人id
-        //employee.setCreateUser(BaseContext.getCurrentId());
-        //employee.setUpdateUser(BaseContext.getCurrentId());
-
+        //2,调用mapper方法,返回employeDTO对象
         employeeMapper.insert(employee);
     }
 
@@ -96,31 +115,19 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @param employeePageQueryDTO
      * @return
      */
-    @Override
-    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
-        //开始分页查询
-        PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());
-
-        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
-
-        long total = page.getTotal();
-        List<Employee> records = page.getResult();
-
-        return new PageResult(total,records);
-    }
 
     /**
      * 启用禁用员工账号
      * @param status
      * @param id
      */
-    public void starOrStop(Integer status, Long id) {
-
-        Employee employee = Employee.builder()
-                .status(status)
+    public void starOrStop(Integer status,Long id){
+        Employee employee=Employee.builder()
                 .id(id)
+                .status(status)
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())
                 .build();
-
 
         employeeMapper.update(employee);
     }
@@ -148,5 +155,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         //employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.update(employee);
+    }
+
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        //1,设置分页参数,PageHelper
+        PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());
+        //2,调用mapper方法
+        Page<Employee> pageQuery=employeeMapper.pageQuery(employeePageQueryDTO.getName());
+        //3,封装对象并返回
+        return new PageResult(pageQuery.getTotal(),pageQuery.getResult());
     }
 }

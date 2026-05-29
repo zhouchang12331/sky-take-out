@@ -19,14 +19,14 @@ public interface EmployeeService {
      * 新增员工
      * @param employeeDTO
      */
-    void save(EmployeeDTO employeeDTO);
+    void addEmp(EmployeeDTO employeeDTO);
 
     /**
      * 分页查询
      * @param employeePageQueryDTO
      * @return
      */
-    PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
 
     /**
      * 启用禁用员工账号
@@ -47,4 +47,6 @@ public interface EmployeeService {
      * @param employeeDTO
      */
     void update(EmployeeDTO employeeDTO);
+
+    PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
 }
