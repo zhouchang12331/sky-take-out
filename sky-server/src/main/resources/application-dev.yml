@@ -1,0 +1,25 @@
+sky:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: localhost
+    port: 3306
+    database: sky_take_out
+    username: root
+    password: your_password
+  alioss:
+    endpoint: oss-cn-beijing.aliyuncs.com
+    access-key-id: YOUR_ACCESS_KEY_ID
+    access-key-secret: YOUR_ACCESS_KEY_SECRET
+    bucket-name: hanson-lms
+  redis:
+    host: localhost
+    port: 6379
+    #password:
+    database: 0
+  wechat:
+    appid: your_appid
+    secret: your_secret
+  shop:
+    address: 北京市海淀区上地十街10号
+  baidu:
+    ak: YOUR_BAIDU_AK
