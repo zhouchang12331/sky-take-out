@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
-import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -20,8 +19,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-
-import java.time.LocalDateTime;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -70,28 +67,6 @@ public class EmployeeServiceImpl implements EmployeeService {
      * 新增员工
      * @param employeeDTO
      */
-//    public void save(EmployeeDTO employeeDTO) {
-//        Employee employee = new Employee();
-//
-//        //对象属性拷贝
-//        BeanUtils.copyProperties(employeeDTO, employee);
-//
-//        //设置账号的状态，默认正常状态 1表示正常 0表示锁定
-//        employee.setStatus(StatusConstant.ENABLE);
-//
-//        //设置密码，默认密码123456
-//        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
-//
-//        //设置当前记录的创建时间和修改时间
-//        //employee.setCreateTime(LocalDateTime.now());
-//        //employee.setUpdateTime(LocalDateTime.now());
-//
-//        //设置当前记录创建人id和修改人id
-//        //employee.setCreateUser(BaseContext.getCurrentId());
-//        //employee.setUpdateUser(BaseContext.getCurrentId());
-//
-//        employeeMapper.insert(employee);
-//    }
     @Override
     public void addEmp(EmployeeDTO employeeDTO){
         Employee employee=new Employee();
@@ -99,11 +74,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         //1,补充缺失字段:password,staus,createTime,updateTime,updateUser,updateUser
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
         employee.setStatus(StatusConstant.ENABLE);
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-        //TODO
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         //2,调用mapper方法,返回employeDTO对象
         employeeMapper.insert(employee);
@@ -124,8 +94,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee=Employee.builder()
                 .id(id)
                 .status(status)
-                .updateTime(LocalDateTime.now())
-                .updateUser(BaseContext.getCurrentId())
                 .build();
 
         employeeMapper.update(employee);
@@ -147,15 +115,8 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @param employeeDTO
      */
     public void update(EmployeeDTO employeeDTO) {
-//        Employee employee = new Employee();
-//        BeanUtils.copyProperties(employeeDTO, employee);
-        //employee.setUpdateTime(LocalDateTime.now());
-        //employee.setUpdateUser(BaseContext.getCurrentId());
-
         Employee employee=new Employee();
         BeanUtils.copyProperties(employeeDTO,employee);
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.update(employee);
     }
