@@ -1,6 +1,7 @@
 package com.sky.mapper;
 
 import com.sky.entity.User;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -21,6 +22,7 @@ public interface UserMapper {
      * 插入数据
      * @param user
      */
+    @Insert("insert into user (openid, name, phone, sex, age) values (#{openid}, #{name}, #{phone}, #{sex}, #{age})")
     void insert(User user);
 
     @Select("select * from user where id = #{id}")
@@ -31,5 +33,6 @@ public interface UserMapper {
      * @param map
      * @return
      */
+    @Select("select count(*) from user ${condition}")
     Integer countByMap(Map map);
 }
