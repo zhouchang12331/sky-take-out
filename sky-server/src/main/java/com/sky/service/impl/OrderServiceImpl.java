@@ -3,9 +3,7 @@ package com.sky.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.AddressBook;
 import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
@@ -250,6 +248,96 @@ public class OrderServiceImpl implements OrderService {
         }
         orderMapper.update(orders);
     }
+
+    @Override
+    public PageResult orderSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        log.info("订单搜索：{}", ordersPageQueryDTO);
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        List<Orders> page=orderMapper.pageQuery(ordersPageQueryDTO);
+        List<OrderVO> pageVOList = getOrderVOList(page);
+
+        return new PageResult(page.size(), pageVOList);
+        //return new PageResult(page.getTotal(), pageVOList);
+    }
+
+    @Override
+    public void confirm(OrdersConfirmDTO dto) {
+        //根据id拿到订单id
+        Orders orders = new OrderVO();
+        orders.setId(dto.getId());
+        orders.setStatus(Orders.CONFIRMED);
+
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void delivery(Long id) {
+        Orders orders=Orders.builder()
+                .id(orderMapper.getById(id).getId())
+                .status(Orders.DELIVERY_IN_PROGRESS)
+                .build();
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void complete(Long id) {
+        Orders orders=Orders.builder()
+                .id(orderMapper.getById(id).getId())
+                .status(Orders.COMPLETED)
+                .build();
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void rejection(OrdersRejectionDTO ordersRejectionDTO) throws Exception {
+        Orders orders = orderMapper.getById(ordersRejectionDTO.getId());
+        if (orders == null||orders.getStatus() != Orders.TO_BE_CONFIRMED) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        orders.setId(ordersRejectionDTO.getId());
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelTime(LocalDateTime.now());
+        orders.setCancelReason(ordersRejectionDTO.getRejectionReason());
+        orderMapper.update(orders);
+
+    }
+
+    @Override
+    public void orderCancel(OrdersCancelDTO ordersCancelDTO) throws Exception{
+        Orders orders = orderMapper.getById(ordersCancelDTO.getId());
+        if(orders==null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelTime(LocalDateTime.now());
+        orders.setCancelReason(ordersCancelDTO.getCancelReason());
+        orderMapper.update(orders);
+    }
+
+    private List<OrderVO> getOrderVOList(List<Orders> page) {
+        List<OrderVO> orderVOs=new ArrayList<>();
+        for(Orders orders:page){
+            OrderVO orderVO = new OrderVO();
+            BeanUtils.copyProperties(orders,orderVO);
+            String orderDishes=getOrderDishes(orders);
+            orderVO.setOrderDishes(orderDishes);
+            orderVOs.add(orderVO);
+        }
+        return orderVOs;
+    }
+
+    private String getOrderDishes(Orders orders) {
+        List<OrderDetail> dishes=orderDetailMapper.getByOrderId(orders.getId());
+        if (dishes != null && dishes.size() > 0) {
+            StringBuilder orderDishes = new StringBuilder();
+            for (OrderDetail dish : dishes) {
+                orderDishes.append(dish.getName()).append(" x").append(dish.getNumber()).append(" ");
+            }
+            return orderDishes.toString();
+        }
+        return "";
+    }
+
 
 //    @Override
 //    public void reminder(Long id) {
