@@ -42,6 +42,7 @@
         </set>
         where id = #{id}
     </update>
+
     <select id="pageQuery" resultType="com.sky.entity.Orders">
         select * from orders
         <where>

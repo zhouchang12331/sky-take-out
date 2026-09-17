@@ -33,6 +33,6 @@ public interface UserMapper {
      * @param map
      * @return
      */
-    @Select("select count(*) from user ${condition}")
+
     Integer countByMap(Map map);
 }

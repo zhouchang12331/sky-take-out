@@ -43,7 +43,6 @@ public class OrderTask {
     @Scheduled(cron = "0 0 1 * * ?")
     public void processUnfinishedOrders() {
         log.info("处理未结束订单...");
-        orderMapper.updateOrderStatus(Orders.CANCELLED,LocalDateTime.now().minusMinutes(60));
         List<Orders> ordersList= orderMapper.updateOrderStatus(Orders.DELIVERY_IN_PROGRESS,LocalDateTime.now().minusMinutes(60));
         if(ordersList!=null&&ordersList.size()>0) {
             for (Orders order : ordersList) {
