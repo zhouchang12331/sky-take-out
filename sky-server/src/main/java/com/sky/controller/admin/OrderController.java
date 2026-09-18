@@ -7,6 +7,7 @@ import com.sky.dto.OrdersRejectionDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -99,6 +100,12 @@ public class OrderController {
     public Result cancel(@RequestBody OrdersCancelDTO ordersCancelDTO) throws Exception{
         orderService.orderCancel(ordersCancelDTO);
         return Result.success();
+    }
+    @ApiOperation("订单统计")
+    @GetMapping("/statistics")
+    public Result<OrderStatisticsVO> orderStatistics(){
+        OrderStatisticsVO orderStatisticsVO = orderService.orderStatistics();
+        return Result.success(orderStatisticsVO);
     }
 
 }

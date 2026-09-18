@@ -1,7 +1,10 @@
 package com.sky.controller.admin;
 
+import com.sky.constant.MessageConstant;
 import com.sky.result.Result;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import io.swagger.annotations.Api;
@@ -43,4 +46,36 @@ public class ReportController {
         UserReportVO userReportVO = reportService.userStatistics(begin, end);
         return Result.success(userReportVO);
     }
+
+    /**
+     * 订单统计
+     */
+    @GetMapping("/ordersStatistics")
+    public Result<OrderReportVO> orderStatistics(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                                                 @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        log.info("订单统计");
+        OrderReportVO orderReportVO = reportService.orderStatistics(begin, end);
+        log.info("订单统计结果: {}", orderReportVO);
+        return Result.success(orderReportVO);
+    }
+
+    /**
+     * top10销量排名
+     */
+    @GetMapping("/top10")
+    public Result<SalesTop10ReportVO> top10(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                                            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        log.info("查询top10销量排名");
+        SalesTop10ReportVO salesTop10ReportVO=reportService.top10(begin,end);
+        return Result.success(salesTop10ReportVO);
+    }
+    /**
+     * 导出excel报表
+     */
+    @GetMapping("/export")
+    public Result export() {
+        log.info("导出excel报表");
+            return Result.success(MessageConstant.EXPORT_SUCCESS);
+    }
+
 }

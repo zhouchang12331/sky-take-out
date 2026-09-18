@@ -43,6 +43,26 @@
         where id = #{id}
     </update>
 
+    <select id="top10" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name, sum(od.number) as number
+        from order_detail od
+        join orders o on od.order_id = o.id
+        <where>
+            <if test="status != null">
+                and o.status = #{status}
+            </if>
+            <if test="begin != null">
+                and o.order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and o.order_time &lt; #{end}
+            </if>
+        </where>
+        group by od.name
+        order by number desc
+        limit 10
+    </select>
+
     <select id="pageQuery" resultType="com.sky.entity.Orders">
         select * from orders
         <where>
@@ -67,5 +87,6 @@
         </where>
         order by order_time desc
     </select>
+
 
 </mapper>
